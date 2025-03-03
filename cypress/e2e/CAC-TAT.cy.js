@@ -303,7 +303,7 @@ describe('Customer Service Center TAT', () => {
       .should('include', 'CAC TAT')
   });
 
-  it.only('Find the cat hidden', () => {
+  it('Find the cat hidden', () => {
       cy.get('#cat')
         .invoke('show')
         .should('be.visible')
