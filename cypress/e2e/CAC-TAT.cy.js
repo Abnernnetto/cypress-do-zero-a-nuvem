@@ -13,6 +13,8 @@ describe('Customer Service Center TAT', () => {
 
   it('Checks the success message', () => {
 
+    cy.clock()
+
     cy.get('#firstName').type('Abner')
     cy.get('#lastName').type('Nunes')
     cy.get('#email').type('abn_net@hotmail.com')
@@ -20,9 +22,15 @@ describe('Customer Service Center TAT', () => {
     cy.contains('button', 'Enviar').click()
 
     cy.get('.success').should('be.visible')
+
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   });
 
   it('Checks the error message when submitting the form with an invalid email format', () => {
+    
+    cy.clock()
+    
     cy.get('#firstName').type('Adrian')
     cy.get('#lastName').type('Netto')
     cy.get('#email').type('abn_nethotmail.com')
@@ -30,6 +38,9 @@ describe('Customer Service Center TAT', () => {
     cy.contains('button', 'Enviar').click()
 
     cy.get('.error').should('be.visible')
+
+    cy.tick(3000)
+    cy.get('.error').should('not.be.visible')
   });
 
   it('Checks that if a non-numeric value is typed, the field remains empty', () => {
@@ -39,6 +50,9 @@ describe('Customer Service Center TAT', () => {
   });
 
   it('Checks the error message when the phone becomes mandatory but is not filled before form submission', () => {
+    
+    cy.clock()
+    
     cy.get('#firstName').type('Miriã')
     cy.get('#lastName').type('Netto')
     cy.get('#email').type('miria@hotmail.com')
@@ -47,6 +61,11 @@ describe('Customer Service Center TAT', () => {
     cy.contains('button', 'Enviar').click()
 
     cy.get('.error > strong').should('be.visible')
+
+    cy.tick(3000)
+
+    cy.get('.error > strong').should('not.be.visible')
+
   });
 
   it('Fills and clears the fields: first name, last name, email, and phone', () => {
@@ -244,4 +263,53 @@ describe('Customer Service Center TAT', () => {
       .should('be.visible')
       
   })
+
+  it('Show and hidden the success and error message using .invoke ', () => {
+    
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+
+      cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+      
+  })
+
+  it('Fill out the text area field using command .invoke', () => {
+    cy.get('#open-text-area')
+      .invoke('val', 'Um texto qualquer')
+      .should('have.value', 'Um texto qualquer')
+  })
+
+  it('Send HTTP Request ', () => {
+    cy.request('https://cac-tat-v3.s3.eu-central-1.amazonaws.com/index.html')
+      .as('getRequest')
+      .its('status')
+      .should('be.equal', 200)
+    cy.get('@getRequest')
+      .its('statusText')
+      .should('be.equal', 'OK')
+    cy.get('@getRequest')
+      .its('body')
+      .should('include', 'CAC TAT')
+  });
+
+  it.only('Find the cat hidden', () => {
+      cy.get('#cat')
+        .invoke('show')
+        .should('be.visible')
+      cy.get('#title')
+        .invoke('text', 'CAT TAT')
+      cy.get('#subtitle')
+        .invoke('text', 'Eu gosto de gatos')
+  });
 })
